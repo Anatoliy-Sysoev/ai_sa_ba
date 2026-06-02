@@ -1,0 +1,18 @@
+name: course-check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: No committed .env
+        run: |
+          if git ls-files | grep -E '(^|/)\.env$'; then
+            echo "::error::Найден закоммиченный .env"; exit 1
+          fi
+      - name: No hardcoded API keys
+        run: |
+          if grep -rIE 'sk-[A-Za-z0-9]{20,}' --include='*.py' .; then
+            echo "::error::Похоже на захардкоженный ключ"; exit 1
+          fi
+          echo "ok"
